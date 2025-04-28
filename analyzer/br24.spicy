@@ -2,7 +2,48 @@
 
 module BR24;
 
-public type frame_header = unit {
-    payload: bytes &eod;
+import spicy;
+
+#public type frame_header = unit {
+#    payload: bytes &eod;
+#
+#};
+
+public type br24_img = unit {
+    %port = 6678/udp &originator;
+    #:  img[];
+
+    hdr : br24_header;
+
+    on %init {
+        print "Starting IMG";
+    }
+
+    on %done {
+        # print self;
+    }
+};
+
+type br24_header = unit {
+    #%byte-order = spicy::ByteOrder::Little;
     
+    start_marker: bytes &until=b"\x01\x00\x00\x00\x00";
+    scanlines_no:   uint8 &byte-order=spicy::ByteOrder::Little;
+    scanlize_size:   uint16 &byte-order=spicy::ByteOrder::Little;
+
+    # NOTE: Just testing for now
+    # : void &size=(17160 - 7);
+
+    payload: bytes &eod;
+
+    on %init {
+        print "Starting HEADER";
+    }
+
+    on %done {
+        # print self;
+        print self.start_marker;
+        print self.scanlines_no;
+        print self.scanlize_size;
+    }
 };

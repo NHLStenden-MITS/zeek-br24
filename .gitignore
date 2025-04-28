@@ -1,1 +1,9 @@
 build
+
+
+*.log
+*.dat
+*.hlto
+
+*.pcap
+*.pcapng

@@ -9,7 +9,7 @@ export {
 	## The ports to register BR24 for.
 	const ports = {
 		# TODO: Replace with actual port(s).
-		12345/udp,
+		6678/udp,
 	} &redef;
 
 	## Record type containing the column fields of the BR24 log.
@@ -23,10 +23,17 @@ export {
 
 		# TODO: Adapt subsequent fields as needed.
 
+		start_marker: string  &log &optional;
+		scanlines_no: count  &log &optional;
+		scanlize_size: count  &log &optional;
+
+		payload: string  &log &optional;
+
 		## Request-side payload.
 		request: string &optional &log;
-		## Response-side payload.
-		reply: string &optional &log;
+
+		## Since this is UPD multicast we do not have reply
+
 	};
 
 	## A default logging policy hook for the stream.
@@ -71,6 +78,9 @@ hook set_session(c: connection)
 		return;
 
 	c$br24 = Info($ts=network_time(), $uid=c$uid, $id=c$id);
+
+	# c$br24 = Info($ts=network_time(), $uid=c$uid, $id=c$id, $start_marker=c$start_marker, $scanlines_no=c$scanlines_no, $scanlize_size=c$scanlize_size);
+
 	Conn::register_removal_hook(c, finalize_br24);
 	}
 
@@ -84,15 +94,18 @@ function emit_log(c: connection)
 	}
 
 # Example event defined in br24.evt.
-event BR24::message(c: connection, is_orig: bool, payload: string)
+event BR24::message(c: connection, is_orig: bool, start_marker: string, scanlines_no: count, scanlize_size: count, payload: string)
 	{
 	hook set_session(c);
 
 	local info = c$br24;
-	if ( is_orig )
+	if ( is_orig ) {
+		
 		info$request = payload;
-	else
-		info$reply = payload;
+
+		print "Message Here!", start_marker, scanlines_no, scanlize_size;
+	}
+	
 	}
 
 hook finalize_br24(c: connection)

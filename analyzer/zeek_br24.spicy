@@ -15,6 +15,6 @@ import zeek;
 # }
 
 # Any error bubbling up to the top unit will trigger a protocol rejection.
-on BR24::frame_header::%error {
+on BR24::br24_img::%error {
     zeek::reject_protocol("error while parsing BR24");
 }
