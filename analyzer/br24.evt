@@ -1,0 +1,16 @@
+import BR24;
+import Zeek_BR24;
+
+# TODO: Adjust below how/when the analyzer will be activated. The example
+# defines a well-known port to trigger it. For more information, see:
+#
+#   https://docs.zeek.org/projects/spicy/en/latest/zeek.html#interface-definitions-evt-files
+#
+protocol analyzer BR24 over UDP:
+    parse originator with BR24::frame_header,
+    parse responder with BR24::frame_header;
+
+# TODO: Connect Spicy-side events with Zeek-side events. The example just
+# defines a simple example event that forwards the raw data (which in practice
+# you don't want to do!).
+on BR24::frame_header -> event BR24::message($conn, $is_orig, self.payload);

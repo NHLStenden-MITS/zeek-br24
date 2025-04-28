@@ -1,0 +1,23 @@
+[package]
+script_dir = scripts
+test_command = cd testing && btest -c btest.cfg
+summary = TODO: A summary of spicy-BR24 in one line
+description = TODO: A more detailed description of spicy-BR24.
+	It can span multiple lines, with this indentation.
+depends = 
+	zeek >=4.0.0
+build_command = mkdir -p build && cd build && SPICYZ=$(command -v spicyz || echo %(package_base)s/spicy-plugin/build/bin/spicyz) cmake .. && cmake --build .
+
+[template]
+source = https://github.com/zeek/package-template
+version = v3.1.5
+zkg_version = 3.0.1-43
+features = spicy-protocol-analyzer
+
+[template_vars]
+name = spicy-BR24
+analyzer = BR24
+protocol = UDP
+unit_orig = frame_header
+unit_resp = frame_header
+

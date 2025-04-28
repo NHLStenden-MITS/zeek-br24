@@ -1,0 +1,7 @@
+# TODO: Define your analyzer here.
+
+module BR24;
+
+public type frame_header = unit {
+    payload: bytes &eod;
+};
