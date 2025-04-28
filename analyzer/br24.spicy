@@ -4,4 +4,5 @@ module BR24;
 
 public type frame_header = unit {
     payload: bytes &eod;
+    
 };
