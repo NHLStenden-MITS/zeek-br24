@@ -94,7 +94,7 @@ function emit_log(c: connection)
 	}
 
 # Example event defined in br24.evt.
-event BR24::img_header(c: connection, is_orig: bool, start_marker: string, scanlines_no: count, scanline_size: count, payload: string)
+event BR24::img_header(c: connection, is_orig: bool, start_marker: string, scanlines_no: count, scanline_size: count)
 	{
 	hook set_session(c);
 
@@ -112,6 +112,16 @@ event BR24::img_header(c: connection, is_orig: bool, start_marker: string, scanl
 
 		print "Info:", info;
 	}
+	
+	}
+
+event BR24::img_scanline(c: connection, scanline_header_len : count , status: count, scanline_counter: count, marking: string, angle: count, heading: count, range: count, unknown_1: string, scanline_pixels: string)
+	{
+	hook set_session(c);
+
+	local info = c$br24;
+	
+	print "Scanline Header Here!";
 	
 	}
 
