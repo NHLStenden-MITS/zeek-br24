@@ -25,7 +25,7 @@ export {
 
 		start_marker: string  &log &optional;
 		scanlines_no: count  &log &optional;
-		scanlize_size: count  &log &optional;
+		scanline_size: count  &log &optional;
 
 		payload: string  &log &optional;
 
@@ -79,7 +79,7 @@ hook set_session(c: connection)
 
 	c$br24 = Info($ts=network_time(), $uid=c$uid, $id=c$id);
 
-	# c$br24 = Info($ts=network_time(), $uid=c$uid, $id=c$id, $start_marker=c$start_marker, $scanlines_no=c$scanlines_no, $scanlize_size=c$scanlize_size);
+	# c$br24 = Info($ts=network_time(), $uid=c$uid, $id=c$id, $start_marker=c$start_marker, $scanlines_no=c$scanlines_no, $scanline_size=c$scanline_size);
 
 	Conn::register_removal_hook(c, finalize_br24);
 	}
@@ -94,16 +94,23 @@ function emit_log(c: connection)
 	}
 
 # Example event defined in br24.evt.
-event BR24::message(c: connection, is_orig: bool, start_marker: string, scanlines_no: count, scanlize_size: count, payload: string)
+event BR24::img_header(c: connection, is_orig: bool, start_marker: string, scanlines_no: count, scanline_size: count, payload: string)
 	{
 	hook set_session(c);
 
 	local info = c$br24;
 	if ( is_orig ) {
 		
-		info$request = payload;
+		#info$request = payload;
 
-		print "Message Here!", start_marker, scanlines_no, scanlize_size;
+		print "IMG Header Here!", start_marker, scanlines_no, scanline_size;
+		
+		# TODO: No need to log the start marker?
+		info$start_marker = start_marker;
+		info$scanlines_no = scanlines_no;
+		info$scanline_size = scanline_size;
+
+		print "Info:", info;
 	}
 	
 	}

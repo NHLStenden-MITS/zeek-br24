@@ -18,4 +18,4 @@ protocol analyzer BR24 over UDP:
 
 #on BR24::br24_img -> event BR24::message($conn, $is_orig, self.hdr);
 
-on BR24::br24_img -> event BR24::message($conn, $is_orig, self.hdr.start_marker, self.hdr.scanlines_no, self.hdr.scanlize_size, self.hdr.payload);
+on BR24::br24_img -> event BR24::img_header($conn, $is_orig, self.hdr.start_marker, self.hdr.scanlines_no, self.hdr.scanline_size, self.hdr.payload);

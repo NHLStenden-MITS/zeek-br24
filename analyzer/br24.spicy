@@ -13,7 +13,9 @@ public type br24_img = unit {
     %port = 6678/udp &originator;
     #:  img[];
 
-    hdr : br24_header;
+    hdr : img_header;
+
+    : scanline[];
 
     on %init {
         print "Starting IMG";
@@ -24,17 +26,17 @@ public type br24_img = unit {
     }
 };
 
-type br24_header = unit {
+type img_header = unit {
     #%byte-order = spicy::ByteOrder::Little;
     
-    start_marker: bytes &until=b"\x01\x00\x00\x00\x00";
+    start_marker: bytes &size=(5);
     scanlines_no:   uint8 &byte-order=spicy::ByteOrder::Little;
-    scanlize_size:   uint16 &byte-order=spicy::ByteOrder::Little;
+    scanline_size:   uint16 &byte-order=spicy::ByteOrder::Little;
 
     # NOTE: Just testing for now
     # : void &size=(17160 - 7);
 
-    payload: bytes &eod;
+    # payload: bytes &eod;
 
     on %init {
         print "Starting HEADER";
@@ -44,6 +46,44 @@ type br24_header = unit {
         # print self;
         print self.start_marker;
         print self.scanlines_no;
-        print self.scanlize_size;
+        print self.scanline_size;
+    }
+};
+
+type scanline = unit {
+    #%byte-order = spicy::ByteOrder::Little;
+    
+    scanline_hdr : scanline_header;
+    scanline_pixels : bytes &size=(512);
+
+    on %init {
+        print "Starting Scanline";
+    }
+
+    on %done {
+        # print self;
+    }
+};
+
+type scanline_header = unit {
+        
+    scanline_header_len:   uint8 &byte-order=spicy::ByteOrder::Little;
+    status:   uint8 &byte-order=spicy::ByteOrder::Little;
+    scanline_counter:   uint16 &byte-order=spicy::ByteOrder::Little;
+    marking:   bytes &size=(4);
+    angle:   uint16 &byte-order=spicy::ByteOrder::Little;
+    heading:   uint16 &byte-order=spicy::ByteOrder::Little;
+    range:   uint16 &byte-order=spicy::ByteOrder::Little;
+    unknown_1:   bytes &size=(10);
+
+    on %init {
+        print "Starting Scanline Header";
+    }
+
+    on %done {
+        print self;
+        # print self.scanline_header_len;
+        # print self.scanline_counter;
+        print "\n";
     }
 };
