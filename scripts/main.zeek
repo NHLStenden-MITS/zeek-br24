@@ -27,10 +27,21 @@ export {
 		scanlines_no: count  &log &optional;
 		scanline_size: count  &log &optional;
 
-		payload: string  &log &optional;
+		scanline_header_len: vector of count &log &optional;
+		scanline_counter: vector of count &log &optional;
+		status: vector of count &log &optional;
+		marking: vector of string &log &optional;
+		angle: vector of count &log &optional;
+		heading: vector of count &log &optional;
+		range: vector of count &log &optional;
+		unknown_1: vector of string &log &optional;
+		scanline_pixels: vector of string &log &optional;
+		
+		
+		#payload: string  &log &optional;
 
 		## Request-side payload.
-		request: string &optional &log;
+		#request: string &optional &log;
 
 		## Since this is UPD multicast we do not have reply
 
@@ -60,6 +71,21 @@ redef likely_server_ports += { ports };
 #	{
 #	return cat(Analyzer::ANALYZER_BR24, c$start_time, c$id, is_orig);
 #	}
+
+
+function set_scanline(c: connection){
+	c$br24$scanline_header_len = vector();
+	c$br24$status = vector();
+	c$br24$scanline_counter = vector();
+	c$br24$marking = vector();
+	c$br24$angle = vector();
+	c$br24$heading = vector();
+	c$br24$range = vector();
+	c$br24$unknown_1 = vector();
+
+	c$br24$scanline_pixels = vector();
+}
+
 
 event zeek_init() &priority=5
 	{
@@ -100,6 +126,8 @@ event BR24::img_header(c: connection, is_orig: bool, start_marker: string, scanl
 
 	local info = c$br24;
 	if ( is_orig ) {
+
+		# set_scanline(c);
 		
 		#info$request = payload;
 
@@ -110,9 +138,13 @@ event BR24::img_header(c: connection, is_orig: bool, start_marker: string, scanl
 		info$scanlines_no = scanlines_no;
 		info$scanline_size = scanline_size;
 
-		print "Info:", info;
+		# print "Info:", info;
+
+		
 	}
 	
+
+	hook finalize_br24(c);
 	}
 
 event BR24::img_scanline(c: connection, scanline_header_len : count , status: count, scanline_counter: count, marking: string, angle: count, heading: count, range: count, unknown_1: string, scanline_pixels: string)
@@ -120,8 +152,34 @@ event BR24::img_scanline(c: connection, scanline_header_len : count , status: co
 	hook set_session(c);
 
 	local info = c$br24;
+
+	if ( !info?$scanline_header_len || !info?$status || !info?$scanline_counter
+		|| !info?$marking || !info?$angle || !info?$heading
+		|| !info?$range || !info?$unknown_1 || !info?$scanline_pixels){
+		set_scanline(c);
+	}
+	
+	# if ( !info?$scanline_header_len || !info?$status || !info?$scanline_counter ||
+	# 	 !info?$marking || !info?$angle || !info?$heading ||
+	# 	 !info?$range || !info?$unknown_1|| !info?$scanline_pixels){
+	# 	set_scanline(c);
+	# }
 	
 	print "Scanline Header Here!";
+	
+	info$scanline_header_len += scanline_header_len;
+	info$status += status;
+	info$scanline_counter += scanline_counter;
+	info$marking += marking;
+	info$angle += angle;
+	info$heading += heading;
+	info$range += range;
+	info$unknown_1 += unknown_1;
+	
+	# NOTE: disabled to reduce ouput
+	#info$scanline_pixels += scanline_pixels;
+
+	print "Info:", info;
 	
 	}
 
