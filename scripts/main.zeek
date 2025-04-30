@@ -10,6 +10,7 @@ export {
 	const ports = {
 		# TODO: Replace with actual port(s).
 		6678/udp,
+		6680/udp,
 	} &redef;
 
 	## Record type containing the column fields of the BR24 log.
@@ -181,6 +182,23 @@ event BR24::img_scanline(c: connection, scanline_header_len : count , status: co
 
 	print "Info:", info;
 	
+	}
+
+event BR24::reg(c: connection, is_orig: bool, register: string, command: string, data: string)
+	{
+	hook set_session(c);
+
+	local info = c$br24;
+	if ( is_orig ) {
+
+		# set_scanline(c);
+
+		print "Reg Here!", register, command, data;
+		
+	}
+	
+
+	hook finalize_br24(c);
 	}
 
 hook finalize_br24(c: connection)

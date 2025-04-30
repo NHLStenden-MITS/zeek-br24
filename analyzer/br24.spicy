@@ -9,9 +9,24 @@ import spicy;
 #
 #};
 
+public type br24_reg = unit {
+    %port = 6680/udp &originator;
+   
+    register : bytes &size=(1);
+    command : bytes &size=(1);
+    data : bytes &eod;
+
+    on %init {
+        print "Starting REG";
+    }
+
+    on %done {
+        print self;
+    }
+};
+
 public type br24_img = unit {
     %port = 6678/udp &originator;
-    #:  img[];
 
     hdr : img_header;
 
