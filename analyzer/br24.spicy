@@ -31,6 +31,12 @@ type reg_command = enum {
     write = 193
 };
 
+type radar_status = enum {
+    standby = 1,
+    transmit = 2,
+    waking_up = 3
+};
+
 public type br24_reg = unit {
     %port = 6680/udp &originator;
    
@@ -123,5 +129,38 @@ type scanline_header = unit {
         # print self.scanline_header_len;
         # print self.scanline_counter;
         print "\n";
+    }
+};
+
+
+public type br24_rep = unit {
+    %port = 6679/udp &originator;
+
+    report_type : uint8 &byte-order=spicy::ByteOrder::Little;
+    command : uint8 &byte-order=spicy::ByteOrder::Little;
+    
+
+    status : br24_report_status if (self.report_type == 1);
+
+    on %init {
+        print "Starting REP";
+    }
+
+    on %done {
+        # print self;
+    }
+};
+
+type br24_report_status = unit {
+    
+    status: uint8 &byte-order=spicy::ByteOrder::Little &convert=radar_status($$);
+    unknown: bytes &size=(15);
+
+    on %init {
+        print "Starting REP Status";
+    }
+
+    on %done {
+        print self;
     }
 };
