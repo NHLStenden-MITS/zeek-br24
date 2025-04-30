@@ -8,10 +8,32 @@ export {
 
 	## The ports to register BR24 for.
 	const ports = {
-		# TODO: Replace with actual port(s).
 		6678/udp,
 		6680/udp,
 	} &redef;
+
+	type reg_number: enum { 
+		radar_ops = 1,  # TODO: change that to a name similar to wireshar;
+		zoom_level = 3, 
+		unknown_reg_1 = 4, 
+		bearing_alignment = 5,
+		filters_and_preprocessing = 6,
+		interference_rejection = 8,
+		target_expansion = 9,
+		target_boost = 10,
+		local_interference_filter = 14,
+		scan_speed = 15,
+		noise_rejection = 33,
+		target_separation = 34,
+		doppler = 35,
+		antenna_height = 48,
+		keep_alive = 160
+	};
+
+	type reg_command: enum { 
+		read = 194,
+		write = 193, 
+	};
 
 	## Record type containing the column fields of the BR24 log.
 	type Info: record {
@@ -38,6 +60,9 @@ export {
 		unknown_1: vector of string &log &optional;
 		scanline_pixels: vector of string &log &optional;
 		
+		register: reg_number &log &optional;
+		command: reg_command &log &optional;
+		register_data: string &log &optional;
 		
 		#payload: string  &log &optional;
 
@@ -126,13 +151,10 @@ event BR24::img_header(c: connection, is_orig: bool, start_marker: string, scanl
 	hook set_session(c);
 
 	local info = c$br24;
-	if ( is_orig ) {
 
-		# set_scanline(c);
-		
-		#info$request = payload;
+	if ( is_orig) {
 
-		print "IMG Header Here!", start_marker, scanlines_no, scanline_size;
+		# print "IMG Header Here!", start_marker, scanlines_no, scanline_size;
 		
 		# TODO: No need to log the start marker?
 		info$start_marker = start_marker;
@@ -153,20 +175,11 @@ event BR24::img_scanline(c: connection, scanline_header_len : count , status: co
 	hook set_session(c);
 
 	local info = c$br24;
-
 	if ( !info?$scanline_header_len || !info?$status || !info?$scanline_counter
 		|| !info?$marking || !info?$angle || !info?$heading
 		|| !info?$range || !info?$unknown_1 || !info?$scanline_pixels){
 		set_scanline(c);
 	}
-	
-	# if ( !info?$scanline_header_len || !info?$status || !info?$scanline_counter ||
-	# 	 !info?$marking || !info?$angle || !info?$heading ||
-	# 	 !info?$range || !info?$unknown_1|| !info?$scanline_pixels){
-	# 	set_scanline(c);
-	# }
-	
-	print "Scanline Header Here!";
 	
 	info$scanline_header_len += scanline_header_len;
 	info$status += status;
@@ -180,20 +193,25 @@ event BR24::img_scanline(c: connection, scanline_header_len : count , status: co
 	# NOTE: disabled to reduce ouput
 	#info$scanline_pixels += scanline_pixels;
 
-	print "Info:", info;
+	# print "Scanline Header Here!:", info;
 	
 	}
 
-event BR24::reg(c: connection, is_orig: bool, register: string, command: string, data: string)
+event BR24::reg(c: connection, is_orig: bool, register: reg_number, command: reg_command, data: string)
 	{
 	hook set_session(c);
 
 	local info = c$br24;
-	if ( is_orig ) {
+	
+	if ( is_orig) {
 
 		# set_scanline(c);
 
-		print "Reg Here!", register, command, data;
+		# print "Reg Here!", register, command, data;
+
+		info$register = register;
+		info$command = command;
+		info$register_data = data;
 		
 	}
 	

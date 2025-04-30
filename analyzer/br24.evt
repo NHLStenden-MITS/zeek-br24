@@ -8,9 +8,17 @@ import Zeek_BR24;
 #
 protocol analyzer BR24 over UDP:
     parse originator with BR24::br24_img,
-    port 6678/udp,
+    port 6678/udp;
+    # parse originator with BR24::br24_reg
+    # port 6680/udp;
+    # ports { 6678/udp, 6680/udp };
+
+protocol analyzer BR24_reg over UDP:
     parse originator with BR24::br24_reg,
     port 6680/udp;
+
+# packet analyzer spicy::RawLayer:
+#     parse with RawLayer::Packet;
 
 on BR24::br24_img -> event BR24::img_header($conn, $is_orig, self.hdr.start_marker, self.hdr.scanlines_no, self.hdr.scanline_size);
 

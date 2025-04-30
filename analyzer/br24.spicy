@@ -9,11 +9,34 @@ import spicy;
 #
 #};
 
+type reg_number = enum { 
+    radar_ops = 1,  # TODO: change that to a name similar to wireshark
+    zoom_level = 3, 
+    bearing_alignment = 5,
+    filters_and_preprocessing = 6,
+    interference_rejection = 8,
+    target_expansion = 9,
+    target_boost = 10,
+    local_interference_filter = 14,
+    scan_speed = 15,
+    noise_rejection = 33,
+    target_separation = 34,
+    doppler = 35,
+    antenna_height = 48,
+    keep_alive = 160
+};
+
+type reg_command = enum {
+    read = 194,
+    write = 193
+};
+
 public type br24_reg = unit {
     %port = 6680/udp &originator;
    
-    register : bytes &size=(1);
-    command : bytes &size=(1);
+    # register : bytes &size=(1);
+    register : uint8 &byte-order=spicy::ByteOrder::Little &convert=reg_number($$);
+    command : uint8 &byte-order=spicy::ByteOrder::Little &convert=reg_command($$);
     data : bytes &eod;
 
     on %init {
