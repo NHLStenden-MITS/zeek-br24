@@ -37,6 +37,30 @@ type radar_status = enum {
     waking_up = 3
 };
 
+type gain_auto_enum = enum {
+    auto = 1,
+    manual = 0
+};
+
+type sea_auto_enum = enum{
+    OFF = 0,
+    HARBOR = 1,
+    OFFSHORE = 2
+};
+
+type interference_rejection_enum = enum{
+    OFF = 0,
+    LOW = 1,
+    MEDIUM = 2,
+    HIGH = 3
+};
+
+type target_boost_enum = enum {
+    OFF = 0,
+    LOW = 1,
+    HIGH = 2
+};
+
 public type br24_reg = unit {
     %port = 6680/udp &originator;
    
@@ -167,8 +191,25 @@ type br24_report_status = unit {
     }
 };
 
-type br24_report_settings = unit {
-    
+type br24_c = unit {
+
+    range: uint32 &byte-order=spicy::ByteOrder::Little;
+    unknown1: bytes &size=(2);
+    gain_auto: uint32 &byte-order=spicy::ByteOrder::Little  &convert=gain_auto_enum($$);
+    gain: uint8 &byte-order=spicy::ByteOrder::Little;
+    sea_auto: uint8 &byte-order=spicy::ByteOrder::Little &convert=sea_auto_enum($$);
+    unknown2: bytes &size=(3);
+    sea_state: uint8 &byte-order=spicy::ByteOrder::Little;
+    unknown3: bytes &size=(4);
+    rain_clutter: uint8 &byte-order=spicy::ByteOrder::Little;
+    unknown4: bytes &size=(11);
+    interference_rejection: uint8 &byte-order=spicy::ByteOrder::Little &convert=interference_rejection_enum($$);
+    unknown5: bytes &size=(3);
+    target_expansion: bytes &size=(1);
+    unknown6: bytes &size=(3);
+    target_boost: uint8 &byte-order=spicy::ByteOrder::Little &convert=target_boost_enum($$);
+    unknown7: bytes &size=(56);
+
     on %init {
         print "Starting REP Settings";
     }
