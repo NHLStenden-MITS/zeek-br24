@@ -142,6 +142,8 @@ public type br24_rep = unit {
 
     status : br24_report_status if (self.report_type == 1);
 
+    settings : br24_report_settings if (self.report_type == 2);
+
     on %init {
         print "Starting REP";
     }
@@ -158,6 +160,17 @@ type br24_report_status = unit {
 
     on %init {
         print "Starting REP Status";
+    }
+
+    on %done {
+        print self;
+    }
+};
+
+type br24_report_settings = unit {
+    
+    on %init {
+        print "Starting REP Settings";
     }
 
     on %done {
