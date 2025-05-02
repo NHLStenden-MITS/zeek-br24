@@ -95,6 +95,10 @@ export {
 		register: reg_number &log &optional;
 		command: reg_command &log &optional;
 		register_data: string &log &optional;
+
+		zoom_level_value: count &log &optional;
+		interference_rejection_value: interference_rejection_enum &log &optional;
+		bearing_alignment_value: count &log &optional;
 		
 		# Report
 		report_type: count  &log &optional;
@@ -260,10 +264,45 @@ event BR24::reg(c: connection, is_orig: bool, register: reg_number, command: reg
 
 		# print "Reg Here!", register, command, data;
 
+		const interference_rejection_map: table[int] of interference_rejection_enum = {
+			[0] = interference_rejection_OFF,
+			[1] = interference_rejection_LOW,
+			[2] = interference_rejection_MEDIUM,
+			[3] = interference_rejection_HIGH
+		};
+
 		info$register = register;
 		info$command = command;
-		info$register_data = data;
+
+
+		if (register == BR24::zoom_level) {
+		 	if (command == BR24::write){
+				# Convert to integer in little endian (T)
+				info$zoom_level_value = bytestring_to_count(data, T);
+			}
+		}
+		else if (register == BR24::bearing_alignment) {
+			if (command == BR24::write){
+				# Convert to integer in little endian (T)
+				info$bearing_alignment_value = bytestring_to_count(data, T);
+			}
+		}
+		else if (register == BR24::interference_rejection) {
+			if (command == BR24::write){
+				# Convert to integer in little endian (T)
+				local data_val = bytestring_to_count(data, T);
+				if ( data_val in interference_rejection_map ) {
+    				local value: interference_rejection_enum = interference_rejection_map[data_val];
+					info$interference_rejection_value = value;
+				}
+			}
+		}
+		else {
+			info$register_data = data;
+		}
+
 		
+
 	}
 	
 
