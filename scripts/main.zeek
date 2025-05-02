@@ -35,6 +35,36 @@ export {
 		write = 193, 
 	};
 
+	type radar_status : enum {
+		standby = 1,
+		transmit = 2,
+		waking_up = 3
+	};
+
+	type gain_auto_enum : enum {
+		gain_auto = 1,
+		gain_manual = 0
+	};
+
+	type sea_auto_enum : enum{
+		sea_auto_OFF = 0,
+		sea_auto_HARBOR = 1,
+		sea_auto_OFFSHORE = 2
+	};
+
+	type interference_rejection_enum : enum{
+		interference_rejection_OFF = 0,
+		interference_rejection_LOW = 1,
+		interference_rejection_MEDIUM = 2,
+		interference_rejection_HIGH = 3
+	};
+
+	type target_boost_enum : enum {
+		target_boostOFF = 0,
+		target_boost_LOW = 1,
+		target_boost_HIGH = 2
+	};
+
 	## Record type containing the column fields of the BR24 log.
 	type Info: record {
 		## Timestamp for when the activity happened.
@@ -50,6 +80,7 @@ export {
 		scanlines_no: count  &log &optional;
 		scanline_size: count  &log &optional;
 
+		# Image
 		scanline_header_len: vector of count &log &optional;
 		scanline_counter: vector of count &log &optional;
 		status: vector of count &log &optional;
@@ -57,19 +88,39 @@ export {
 		angle: vector of count &log &optional;
 		heading: vector of count &log &optional;
 		range: vector of count &log &optional;
-		unknown_1: vector of string &log &optional;
+		unknown_img: vector of string &log &optional;
 		scanline_pixels: vector of string &log &optional;
 		
+		# Register
 		register: reg_number &log &optional;
 		command: reg_command &log &optional;
 		register_data: string &log &optional;
 		
-		#payload: string  &log &optional;
+		# Report
+		report_type: count  &log &optional;
+		report_command: count  &log &optional;
 
-		## Request-side payload.
-		#request: string &optional &log;
+		#Report Status
+		report_status: radar_status &log &optional;
+		unknown_status: string &log &optional;
 
-		## Since this is UPD multicast we do not have reply
+		# Report Settings
+		report_range: count &log &optional;
+		unknown1: string &log &optional;
+		gain_auto: gain_auto_enum &log &optional;
+		gain: count &log &optional;
+		sea_auto: sea_auto_enum &log &optional;
+		unknown2: string &log &optional;
+		sea_state: count &log &optional;
+		unknown3: string &log &optional;
+		rain_clutter: count &log &optional;
+		unknown4: string &log &optional;
+		interference_rejection: interference_rejection_enum &log &optional;
+		unknown5: string &log &optional;
+		target_expansion: string &log &optional;
+		unknown6: string &log &optional;
+		target_boost: target_boost_enum &log &optional;
+		unknown7: string &log &optional;
 
 	};
 
@@ -107,7 +158,7 @@ function set_scanline(c: connection){
 	c$br24$angle = vector();
 	c$br24$heading = vector();
 	c$br24$range = vector();
-	c$br24$unknown_1 = vector();
+	c$br24$unknown_img = vector();
 
 	c$br24$scanline_pixels = vector();
 }
@@ -170,14 +221,14 @@ event BR24::img_header(c: connection, is_orig: bool, start_marker: string, scanl
 	hook finalize_br24(c);
 	}
 
-event BR24::img_scanline(c: connection, scanline_header_len : count , status: count, scanline_counter: count, marking: string, angle: count, heading: count, range: count, unknown_1: string, scanline_pixels: string)
+event BR24::img_scanline(c: connection, scanline_header_len : count , status: count, scanline_counter: count, marking: string, angle: count, heading: count, range: count, unknown_img: string, scanline_pixels: string)
 	{
 	hook set_session(c);
 
 	local info = c$br24;
 	if ( !info?$scanline_header_len || !info?$status || !info?$scanline_counter
 		|| !info?$marking || !info?$angle || !info?$heading
-		|| !info?$range || !info?$unknown_1 || !info?$scanline_pixels){
+		|| !info?$range || !info?$unknown_img || !info?$scanline_pixels){
 		set_scanline(c);
 	}
 	
@@ -188,7 +239,7 @@ event BR24::img_scanline(c: connection, scanline_header_len : count , status: co
 	info$angle += angle;
 	info$heading += heading;
 	info$range += range;
-	info$unknown_1 += unknown_1;
+	info$unknown_img += unknown_img;
 	
 	# NOTE: disabled to reduce ouput
 	#info$scanline_pixels += scanline_pixels;
@@ -214,6 +265,79 @@ event BR24::reg(c: connection, is_orig: bool, register: reg_number, command: reg
 		info$register_data = data;
 		
 	}
+	
+
+	hook finalize_br24(c);
+	}
+
+event BR24::rep(c: connection, is_orig: bool, report_type: count, command: count)
+	{
+	hook set_session(c);
+
+	local info = c$br24;
+	
+	if ( is_orig) {
+
+		info$report_type = report_type;
+		info$report_command = command;
+	}
+	
+
+	hook finalize_br24(c);
+	}
+
+
+event BR24::status(c: connection, report_type: count, command: count, status: radar_status, unknown_status: string)
+	{
+	hook set_session(c);
+
+	local info = c$br24;
+	
+	print "Rep Status";
+
+	info$report_type = report_type;
+	info$report_command = command;
+
+	info$report_status = status;
+	info$unknown_status = unknown_status;
+
+	
+
+	hook finalize_br24(c);
+	}
+
+event BR24::settings(c: connection, report_type: count, command: count, 
+range: count, unknown1: string, gain_auto: gain_auto_enum, gain: count,
+sea_auto: sea_auto_enum, unknown2: string, sea_state: count, 
+unknown3: string, rain_clutter: count, unknown4: string,
+interference_rejection: interference_rejection_enum, unknown5: string, target_expansion: string,
+unknown6: string, target_boost: target_boost_enum, unknown7: string)
+	{
+	hook set_session(c);
+
+	local info = c$br24;
+	
+	print "Rep Settings";
+
+	info$report_type = report_type;
+	info$report_command = command;
+
+	info$report_range = range;
+    info$unknown1 = unknown1;
+    info$gain_auto = gain_auto;
+    info$gain = gain;
+    info$sea_auto = sea_auto;
+    info$unknown2 = unknown2;
+    info$sea_state = sea_state;
+    info$unknown3 = unknown3;
+    info$rain_clutter = rain_clutter;
+    info$unknown4 = unknown4;
+    info$interference_rejection = interference_rejection;
+    info$unknown5 = unknown5;
+    info$target_expansion = target_expansion;
+    info$unknown6 = unknown6;
+    info$target_boost = target_boost;
+    info$unknown7 = unknown7;
 	
 
 	hook finalize_br24(c);

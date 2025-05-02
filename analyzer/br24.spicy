@@ -191,7 +191,7 @@ type br24_report_status = unit {
     }
 };
 
-type br24_c = unit {
+type br24_report_settings = unit {
 
     range: uint32 &byte-order=spicy::ByteOrder::Little;
     unknown1: bytes &size=(2);
