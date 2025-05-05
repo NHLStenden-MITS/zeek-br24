@@ -33,7 +33,10 @@ TODO
 
 Various resources that assist to the development of this parser.
 
-TODO
+* Wireshark Navico BR24 dissector documentation: https://github.com/fkie-cad/maritime-dissector/blob/master/docs/protocols.md 
+* OpenCPN radarpi plugin: https://github.com/opencpn-radar-pi/radar_pi/tree/master/src/navico
+* OpenBR24: https://github.com/sonole/OpenBR24
+* Paper from: Dabrowski, Adrian, Sebastian Busch, and Roland Stelzer. "A digital interface for imagery and control of a Navico/Lowrance broadband radar." Robotic Sailing. Springer, Berlin, Heidelberg, 2011. 169-181, DOI: [10.1007/978-3-642-22836-0_12](https://www.researchgate.net/publication/226363952_A_Digital_Interface_for_Imagery_and_Control_of_a_NavicoLowrance_Broadband_Radar)
 
 ## PCAPs
 
