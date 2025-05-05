@@ -397,11 +397,6 @@ unknown2: string)
 	local info = c$br24;
 	
 	print "Rep firmware";
-	# print firmware_date;
-	print fmt("%s", firmware_date);
-
-	print "-----------";
-	print firmware_time;
 
 	info$report_type = report_type;
 	info$report_command = command;
