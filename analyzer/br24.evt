@@ -65,3 +65,11 @@ on BR24::br24_rep if (self.report_type == 2) ->
     self.settings.unknown6,
     self.settings.target_boost,
     self.settings.unknown7);
+
+on BR24::br24_rep if (self.report_type == 3) -> 
+	event BR24::firmware($conn, self.report_type, self.command, 
+    self.firmware.radar_type,
+    self.firmware.unknown1,
+    self.firmware.firmware_date_str,
+    self.firmware.firmware_time_str,
+    self.firmware.unknown2);

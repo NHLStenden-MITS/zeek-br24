@@ -1,5 +1,3 @@
-# TODO: Define your analyzer here.
-
 module BR24;
 
 import spicy;
@@ -168,6 +166,8 @@ public type br24_rep = unit {
 
     settings : br24_report_settings if (self.report_type == 2);
 
+    firmware : br24_report_firmware if (self.report_type == 3);
+
     on %init {
         print "Starting REP";
     }
@@ -215,6 +215,48 @@ type br24_report_settings = unit {
     }
 
     on %done {
+        print self;
+    }
+};
+
+type br24_report_firmware = unit {
+
+    radar_type: bytes &size=(1);
+    unknown1: bytes &size=(55);
+
+    firmware_date_bytes: bytes &size=(32);
+    # firmware_date_bytes: bytes &size=(32) &convert=$$.decode(spicy::Charset::UTF8);
+    # firmware_date_bytes: bytes &size=(32) &convert=$$.to_time(spicy::ByteOrder::Little);    
+    # firmware_date_bytes1: bytes &size=(32) &convert=$$.to_time();
+
+    # rest: bytes &eod;
+
+    firmware_time_bytes: bytes &size=(32);
+    unknown2: bytes &size=(7);
+    
+    var firmware_date_str: string;
+    var firmware_date_vec: vector<bytes>;
+
+    var firmware_time_str: string;
+    var firmware_time_vec: vector<bytes>;
+    
+    on %init {
+        print "Starting REP Firmware";
+    }
+
+    on %done {
+       
+
+        self.firmware_date_vec = self.firmware_date_bytes.split(b"\x00");
+
+        for ( i in self.firmware_date_vec )
+            self.firmware_date_str += i.decode();
+
+        self.firmware_time_vec = self.firmware_time_bytes.split(b"\x00");
+
+        for ( i in self.firmware_time_vec )
+            self.firmware_time_str += i.decode();
+
         print self;
     }
 };

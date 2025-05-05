@@ -110,22 +110,28 @@ export {
 
 		# Report Settings
 		report_range: count &log &optional;
-		unknown1: string &log &optional;
+		unknown1_settings: string &log &optional;
 		gain_auto: gain_auto_enum &log &optional;
 		gain: count &log &optional;
 		sea_auto: sea_auto_enum &log &optional;
-		unknown2: string &log &optional;
+		unknown2_settings: string &log &optional;
 		sea_state: count &log &optional;
-		unknown3: string &log &optional;
+		unknown3_settings: string &log &optional;
 		rain_clutter: count &log &optional;
-		unknown4: string &log &optional;
+		unknown4_settings: string &log &optional;
 		interference_rejection: interference_rejection_enum &log &optional;
-		unknown5: string &log &optional;
+		unknown5_settings: string &log &optional;
 		target_expansion: string &log &optional;
-		unknown6: string &log &optional;
+		unknown6_settings: string &log &optional;
 		target_boost: target_boost_enum &log &optional;
-		unknown7: string &log &optional;
+		unknown7_settings: string &log &optional;
 
+		# Report Firmware
+		radar_type: string &log &optional;
+		unknown1_firmware: string &log &optional;
+		firmware_date: string &log &optional;
+		firmware_time: string &log &optional;
+		unknown2_firmware: string &log &optional;
 	};
 
 	## A default logging policy hook for the stream.
@@ -362,21 +368,49 @@ unknown6: string, target_boost: target_boost_enum, unknown7: string)
 	info$report_command = command;
 
 	info$report_range = range;
-    info$unknown1 = unknown1;
+    info$unknown1_settings = unknown1;
     info$gain_auto = gain_auto;
     info$gain = gain;
     info$sea_auto = sea_auto;
-    info$unknown2 = unknown2;
+    info$unknown2_settings = unknown2;
     info$sea_state = sea_state;
-    info$unknown3 = unknown3;
+    info$unknown3_settings = unknown3;
     info$rain_clutter = rain_clutter;
-    info$unknown4 = unknown4;
+    info$unknown4_settings = unknown4;
     info$interference_rejection = interference_rejection;
-    info$unknown5 = unknown5;
+    info$unknown5_settings = unknown5;
     info$target_expansion = target_expansion;
-    info$unknown6 = unknown6;
+    info$unknown6_settings = unknown6;
     info$target_boost = target_boost;
-    info$unknown7 = unknown7;
+    info$unknown7_settings = unknown7;
+	
+
+	hook finalize_br24(c);
+	}
+
+event BR24::firmware(c: connection, report_type: count, command: count, 
+radar_type: string, unknown1: string, firmware_date: string, firmware_time: string,
+unknown2: string)
+	{
+	hook set_session(c);
+
+	local info = c$br24;
+	
+	print "Rep firmware";
+	# print firmware_date;
+	print fmt("%s", firmware_date);
+
+	print "-----------";
+	print firmware_time;
+
+	info$report_type = report_type;
+	info$report_command = command;
+
+	info$radar_type = radar_type;
+    info$unknown1_firmware = unknown1;
+    info$firmware_date = firmware_date;
+    info$firmware_time = firmware_time;
+    info$unknown2_firmware = unknown2;
 	
 
 	hook finalize_br24(c);
