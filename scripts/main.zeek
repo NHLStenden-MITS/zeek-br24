@@ -139,6 +139,15 @@ export {
 		unknown2_bearing: string &log &optional;
 		antenna_height: count &log &optional;
 		unknown3_bearing: string &log &optional;
+
+		# Report unknown_05
+		unknown_unknown_05: string &log &optional;
+
+		# Report unknown_07
+		unknown_unknown_07: string &log &optional;
+
+		# Report unknown_f5
+		unknown_unknown_f5: string &log &optional;
 	};
 
 	## A default logging policy hook for the stream.
@@ -436,6 +445,60 @@ unknown3: string)
 	info$unknown2_bearing = unknown2;
 	info$antenna_height = antenna_height;
 	info$unknown3_bearing = unknown3;
+	
+
+	hook finalize_br24(c);
+	}
+
+event BR24::unknown_05(c: connection, report_type: count, command: count, 
+unknown: string)
+	{
+	hook set_session(c);
+
+	local info = c$br24;
+	
+	print "Rep unknown_05";
+
+	info$report_type = report_type;
+	info$report_command = command;
+
+	info$unknown_unknown_05 = unknown;
+	
+
+	hook finalize_br24(c);
+	}
+
+event BR24::unknown_07(c: connection, report_type: count, command: count, 
+unknown: string)
+	{
+	hook set_session(c);
+
+	local info = c$br24;
+	
+	print "Rep unknown_07";
+
+	info$report_type = report_type;
+	info$report_command = command;
+
+	info$unknown_unknown_07 = unknown;
+	
+
+	hook finalize_br24(c);
+	}
+
+event BR24::unknown_f5(c: connection, report_type: count, command: count, 
+unknown: string)
+	{
+	hook set_session(c);
+
+	local info = c$br24;
+	
+	print "Rep unknown_f5";
+
+	info$report_type = report_type;
+	info$report_command = command;
+
+	info$unknown_unknown_f5 = unknown;
 	
 
 	hook finalize_br24(c);

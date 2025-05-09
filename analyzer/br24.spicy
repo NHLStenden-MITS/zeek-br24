@@ -162,13 +162,19 @@ public type br24_rep = unit {
     command : uint8 &byte-order=spicy::ByteOrder::Little;
     
 
-    status : br24_report_status if (self.report_type == 1);
+    status : br24_report_status if (self.command == 196 && self.report_type == 1);
 
-    settings : br24_report_settings if (self.report_type == 2);
+    settings : br24_report_settings if (self.command == 196 && self.report_type == 2);
 
-    firmware : br24_report_firmware if (self.report_type == 3);
+    firmware : br24_report_firmware if (self.command == 196 && self.report_type == 3);
 
-    bearing : br24_report_bearing if (self.report_type == 4);
+    bearing : br24_report_bearing if (self.command == 196 && self.report_type == 4);
+
+    unknown_05 : br24_report_unknown_05 if (self.command == 196 && self.report_type == 5);
+
+    unknown_07 : br24_report_unknown_07 if (self.command == 196 && self.report_type == 7);
+    
+    unknown_f5 : br24_report_unknown_f5 if (self.command == 245);
 
     on %init {
         print "Starting REP";
@@ -277,5 +283,44 @@ type br24_report_bearing = unit {
 
     on %done {
         print self;
+    }
+};
+
+type br24_report_unknown_05 = unit {
+
+    unknown: bytes &eod;
+    
+    on %init {
+        print "Starting REP unknown 05";
+    }
+
+    on %done {
+        # print self;
+    }
+};
+
+type br24_report_unknown_07 = unit {
+
+    unknown: bytes &eod;
+    
+    on %init {
+        print "Starting REP unknown 05";
+    }
+
+    on %done {
+        # print self;
+    }
+};
+
+type br24_report_unknown_f5 = unit {
+
+    unknown: bytes &eod;
+    
+    on %init {
+        print "Starting REP unknown f5";
+    }
+
+    on %done {
+        # print self;
     }
 };

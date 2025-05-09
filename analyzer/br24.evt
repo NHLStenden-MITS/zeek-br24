@@ -44,10 +44,10 @@ on BR24::br24_reg -> event BR24::reg($conn, $is_orig, self.register, self.comman
 # TODO: this is not needed, only to log unimplemented reports.
 # on BR24::br24_rep-> event BR24::rep($conn, $is_orig, self.report_type, self.command);
 
-on BR24::br24_rep if (self.report_type == 1) -> 
+on BR24::br24_rep if (self.command == 196 && self.report_type == 1) -> 
 	event BR24::status($conn, self.report_type, self.command, self.status.status, self.status.unknown);
 
-on BR24::br24_rep if (self.report_type == 2) -> 
+on BR24::br24_rep if (self.command == 196 && self.report_type == 2) -> 
 	event BR24::settings($conn, self.report_type, self.command, 
     self.settings.range,
     self.settings.unknown1,
@@ -66,7 +66,7 @@ on BR24::br24_rep if (self.report_type == 2) ->
     self.settings.target_boost,
     self.settings.unknown7);
 
-on BR24::br24_rep if (self.report_type == 3) -> 
+on BR24::br24_rep if (self.command == 196 && self.report_type == 3) -> 
 	event BR24::firmware($conn, self.report_type, self.command, 
     self.firmware.radar_type,
     self.firmware.unknown1,
@@ -74,10 +74,22 @@ on BR24::br24_rep if (self.report_type == 3) ->
     self.firmware.firmware_time_str,
     self.firmware.unknown2);
 
-on BR24::br24_rep if (self.report_type == 4) -> 
+on BR24::br24_rep if (self.command == 196 && self.report_type == 4) -> 
 	event BR24::bearing($conn, self.report_type, self.command, 
     self.bearing.unknown1,
     self.bearing.bearing_alignment,
     self.bearing.unknown2,
     self.bearing.antenna_height,
     self.bearing.unknown3);
+
+on BR24::br24_rep if (self.command == 196 && self.report_type == 5) -> 
+	event BR24::unknown_05($conn, self.report_type, self.command, 
+    self.unknown_05.unknown);
+
+on BR24::br24_rep if (self.command == 196 && self.report_type == 7) -> 
+	event BR24::unknown_07($conn, self.report_type, self.command, 
+    self.unknown_07.unknown);
+
+on BR24::br24_rep if (self.command == 245) ->
+    event BR24::unknown_f5($conn, self.report_type, self.command, 
+    self.unknown_f5.unknown);
