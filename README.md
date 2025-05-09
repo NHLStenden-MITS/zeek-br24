@@ -27,7 +27,49 @@ $ zeek -NN | grep br24
 
 This parser and the corresponding Zeek main file, capture and log each BR24 message transmitted over UDP ports 6678, 6679 and 6680 to `br24.log`.
 
-TODO
+There are three categories of data that are transmitted via BR24 (i) Image Data, (ii) Reports and (iii) Registers. Below there is a list of the currently implemented functionality.
+
+
+**Image Data**
+
+| Reference         | Implemented           |
+| ----------------- |-----------------------|
+|Frame Header       |x                      |
+|Scanline Header    |x                      |
+|Scanline Pixels    |x                      |
+
+**Reports** -
+**0xC4 Reports**
+| Reference         | Implemented           |
+| ----------------- |-----------------------|
+|Status             |x                      |
+|Settings           |x                      |
+|Firmware           |x                      |
+|Bearing            |x                      |
+|05 Report - Undocumented            |x     |
+|07 Report - Undocumented            |x     |
+|Scan               |                       |
+
+**0xF5 Reports**
+| Reference         | Implemented           |
+| ----------------- |-----------------------|
+|Undocumented       |x                      |
+
+
+**Registers** -
+| Reference         | Implemented           |
+| ----------------- |-----------------------|
+| Radar Status      |x                      |
+| Zoom Level        |x                      |
+| Bearing Alignment |x                      |
+| Filters and Preprocessing        |x       |
+| Interference Rejection        |x          |
+| Target Expansion        |x                |
+| Target Boost            |x                |
+| Local Interference Filter            |x   |
+| Scan Speed        |x                      |
+| Antenna Height    |x                      |
+| Keep Alive        |x                      |
 
 ## Resources
 
