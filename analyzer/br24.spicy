@@ -168,6 +168,8 @@ public type br24_rep = unit {
 
     firmware : br24_report_firmware if (self.report_type == 3);
 
+    bearing : br24_report_bearing if (self.report_type == 4);
+
     on %init {
         print "Starting REP";
     }
@@ -257,6 +259,23 @@ type br24_report_firmware = unit {
         for ( i in self.firmware_time_vec )
             self.firmware_time_str += i.decode();
 
+        print self;
+    }
+};
+
+type br24_report_bearing = unit {
+
+    unknown1: bytes &size=(4);
+    bearing_alignment: uint16 &byte-order=spicy::ByteOrder::Little;
+    unknown2: bytes &size=(2);
+    antenna_height: uint32 &byte-order=spicy::ByteOrder::Little;
+    unknown3: bytes &size=(52);
+    
+    on %init {
+        print "Starting REP Bearing";
+    }
+
+    on %done {
         print self;
     }
 };

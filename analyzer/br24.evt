@@ -73,3 +73,11 @@ on BR24::br24_rep if (self.report_type == 3) ->
     self.firmware.firmware_date_str,
     self.firmware.firmware_time_str,
     self.firmware.unknown2);
+
+on BR24::br24_rep if (self.report_type == 4) -> 
+	event BR24::bearing($conn, self.report_type, self.command, 
+    self.bearing.unknown1,
+    self.bearing.bearing_alignment,
+    self.bearing.unknown2,
+    self.bearing.antenna_height,
+    self.bearing.unknown3);

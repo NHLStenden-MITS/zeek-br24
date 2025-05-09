@@ -132,6 +132,13 @@ export {
 		firmware_date: string &log &optional;
 		firmware_time: string &log &optional;
 		unknown2_firmware: string &log &optional;
+
+		# Report Bearing
+		unknown1_bearing: string &log &optional;
+		bearing_alignment: count &log &optional;
+		unknown2_bearing: string &log &optional;
+		antenna_height: count &log &optional;
+		unknown3_bearing: string &log &optional;
 	};
 
 	## A default logging policy hook for the stream.
@@ -406,6 +413,29 @@ unknown2: string)
     info$firmware_date = firmware_date;
     info$firmware_time = firmware_time;
     info$unknown2_firmware = unknown2;
+	
+
+	hook finalize_br24(c);
+	}
+
+event BR24::bearing(c: connection, report_type: count, command: count, 
+unknown1: string, bearing_alignment: count, unknown2: string, antenna_height: count,
+unknown3: string)
+	{
+	hook set_session(c);
+
+	local info = c$br24;
+	
+	print "Rep bearing";
+
+	info$report_type = report_type;
+	info$report_command = command;
+
+	info$unknown1_bearing = unknown1;
+	info$bearing_alignment = bearing_alignment;
+	info$unknown2_bearing = unknown2;
+	info$antenna_height = antenna_height;
+	info$unknown3_bearing = unknown3;
 	
 
 	hook finalize_br24(c);
