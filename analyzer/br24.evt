@@ -90,6 +90,19 @@ on BR24::br24_rep if (self.command == 196 && self.report_type == 7) ->
 	event BR24::unknown_07($conn, self.report_type, self.command, 
     self.unknown_07.unknown);
 
+on BR24::br24_rep if (self.command == 196 && self.report_type == 8) -> 
+	event BR24::scan($conn, self.report_type, self.command, 
+    self.scan.unknown1,
+    self.scan.local_interference_rejection,
+    self.scan.scan_speed,
+    self.scan.side_lobe_suppression_auto,
+    self.scan.unknown2,
+    self.scan.side_lobe_suppression_value,
+    self.scan.unknown3,
+    self.scan.noise_rejection,
+    self.scan.target_separation,
+    self.scan.unknown4);
+
 on BR24::br24_rep if (self.command == 245) ->
     event BR24::unknown_f5($conn, self.report_type, self.command, 
     self.unknown_f5.unknown);

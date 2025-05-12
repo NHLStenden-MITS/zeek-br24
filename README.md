@@ -48,7 +48,7 @@ There are three categories of data that are transmitted via BR24 (i) Image Data,
 |Bearing            |x                      |
 |05 Report - Undocumented            |x     |
 |07 Report - Undocumented            |x     |
-|Scan               |                       |
+|Scan               |x                      |
 
 **0xF5 Reports**
 | Reference         | Implemented           |

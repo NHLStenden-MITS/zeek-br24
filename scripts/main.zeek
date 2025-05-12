@@ -60,9 +60,19 @@ export {
 	};
 
 	type target_boost_enum : enum {
-		target_boostOFF = 0,
+		target_boost_OFF = 0,
 		target_boost_LOW = 1,
 		target_boost_HIGH = 2
+	};
+
+	type scan_speed_enum : enum {
+		scan_speed_NORMAL = 0,
+		scan_speed_FAST = 1
+	};
+
+	type side_lobe_suppression_auto_enum : enum {
+		side_lobe_suppression_MANUAL = 0,
+		side_lobe_suppression_AUTO = 1
 	};
 
 	## Record type containing the column fields of the BR24 log.
@@ -145,6 +155,19 @@ export {
 
 		# Report unknown_07
 		unknown_unknown_07: string &log &optional;
+
+		# Report Bearing
+		unknown1_scan: string &log &optional;
+		local_interference_rejection_scan : interference_rejection_enum &log &optional;
+		scan_speed_scan_scan: scan_speed_enum &log &optional;
+		side_lobe_suppression_auto_scan: side_lobe_suppression_auto_enum &log &optional;
+		unknown2_scan: string &log &optional;
+		side_lobe_suppression_value_scan: count &log &optional;
+		unknown3_scan: string &log &optional;
+		noise_rejection_scan: string &log &optional;
+		target_separation_scan: string &log &optional;
+		unknown4_scan: string &log &optional;
+
 
 		# Report unknown_f5
 		unknown_unknown_f5: string &log &optional;
@@ -485,6 +508,36 @@ unknown: string)
 
 	hook finalize_br24(c);
 	}
+
+event BR24::scan(c: connection, report_type: count, command: count, 
+unknown1: string, local_interference_rejection: interference_rejection_enum, scan_speed: scan_speed_enum, side_lobe_suppression_auto: side_lobe_suppression_auto_enum,
+unknown2: string, side_lobe_suppression_value: count, unknown3: string, noise_rejection: string,
+target_separation: string, unknown4: string)
+	{
+	hook set_session(c);
+
+	local info = c$br24;
+	
+	print "Rep Scan";
+
+	info$report_type = report_type;
+	info$report_command = command;
+
+	info$unknown1_scan = unknown1;
+	info$local_interference_rejection_scan = local_interference_rejection;
+	info$scan_speed_scan_scan = scan_speed;
+	info$side_lobe_suppression_auto_scan = side_lobe_suppression_auto;
+	info$unknown2_scan = unknown2;
+	info$side_lobe_suppression_value_scan = side_lobe_suppression_value;
+	info$unknown3_scan = unknown3;
+	info$noise_rejection_scan = noise_rejection;
+	info$target_separation_scan = target_separation;
+	info$unknown4_scan = unknown4;
+	
+
+	hook finalize_br24(c);
+	}
+
 
 event BR24::unknown_f5(c: connection, report_type: count, command: count, 
 unknown: string)

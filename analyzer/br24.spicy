@@ -59,6 +59,17 @@ type target_boost_enum = enum {
     HIGH = 2
 };
 
+type scan_speed_enum = enum {
+    NORMAL = 0,
+    FAST = 1
+};
+
+type side_lobe_suppression_auto_enum = enum {
+    MANUAL = 0,
+    AUTO = 1
+};
+
+
 public type br24_reg = unit {
     %port = 6680/udp &originator;
    
@@ -173,6 +184,8 @@ public type br24_rep = unit {
     unknown_05 : br24_report_unknown_05 if (self.command == 196 && self.report_type == 5);
 
     unknown_07 : br24_report_unknown_07 if (self.command == 196 && self.report_type == 7);
+    
+    scan : br24_report_scan if (self.command == 196 && self.report_type == 8);
     
     unknown_f5 : br24_report_unknown_f5 if (self.command == 245);
 
@@ -322,5 +335,28 @@ type br24_report_unknown_f5 = unit {
 
     on %done {
         # print self;
+    }
+};
+
+type br24_report_scan = unit {
+
+    unknown1: bytes &size=(1);
+    local_interference_rejection: uint8 &byte-order=spicy::ByteOrder::Little &convert=interference_rejection_enum($$);
+    scan_speed: uint8 &byte-order=spicy::ByteOrder::Little &convert=scan_speed_enum($$);
+    side_lobe_suppression_auto: uint8 &byte-order=spicy::ByteOrder::Little &convert=side_lobe_suppression_auto_enum($$);
+    unknown2: bytes &size=(3);
+    side_lobe_suppression_value: uint8 &byte-order=spicy::ByteOrder::Little;
+    unknown3: bytes &size=(2);
+    noise_rejection: bytes &size=(1);
+    target_separation: bytes &size=(1);
+    unknown4: bytes &size=(4);
+    
+
+    on %init {
+        print "Starting REP Scan";
+    }
+
+    on %done {
+        print self;
     }
 };
