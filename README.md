@@ -83,12 +83,12 @@ Various resources that assist to the development of this parser.
 
 ## PCAPs
 
-TODO
+The PCAP used to create this parser can be found under [Traces](./testing/Traces/). This has been acquired from the [OpenCPN radarpi plugin](https://github.com/opencpn-radar-pi/radar_pi/tree/master/example) GitHub repository. Another collection of PCAPs used for security research, can be found in the [RadarPWN](https://doi.org/10.5281/zenodo.7188636) data repository.
 
 ## Streams
 
-The streams for the above PCAPs are created using ``zeek -C -r <path to PCAP> Conn::default_extract=T``.
+The streams for the used PCAPs are created using ``zeek -C -r <path to PCAP> udp-contents``, where the udp-contents comes from: https://docs.zeek.org/projects/spicy/en/v1.11.3/tutorial/ .
 
 ## How to contribute?
 
-TODO
+You can find more information in [CONTRIBUTING](./CONTRIBUTING.md)
