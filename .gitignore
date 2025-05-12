@@ -5,5 +5,8 @@ build
 *.dat
 *.hlto
 
-*.pcap
-*.pcapng
+testing/Traces/test_IMG_only.pcapng  
+testing/Traces/test_REG_only.pcapng
+testing/Traces/test_REP_only.pcapng
+testing/Traces/test_zoom_write.pcapng
+testing/Traces/test_zoom_write_read.pcapng
