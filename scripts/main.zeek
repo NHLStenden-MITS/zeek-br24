@@ -291,7 +291,7 @@ event BR24::img_scanline(c: connection, scanline_header_len : count , status: co
 	info$unknown_img += unknown_img;
 	
 	# NOTE: disabled to reduce ouput
-	#info$scanline_pixels += scanline_pixels;
+	info$scanline_pixels += scanline_pixels;
 
 	# print "Scanline Header Here!:", info;
 	
