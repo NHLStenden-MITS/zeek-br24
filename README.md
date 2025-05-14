@@ -9,7 +9,7 @@ The parsing logic of this parser was developed based on the [OpenCPN radarpi plu
 
 This parser produces one log file, `br24.log`, defined under [scripts/main.zeek](./scripts/main.zeek).
 
-The [Logging Capabilities](#loggingcapabilities) section below provides more details for the current fields that are supported.
+The [Logging Capabilities](#logging-capabilities) section below provides more details for the current fields that are supported.
 
 ## Installation
 
