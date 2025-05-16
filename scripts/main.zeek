@@ -215,6 +215,12 @@ function set_scanline(c: connection){
 
 event zeek_init() &priority=5
 	{
+
+	if ( ! Version::at_least("7.1.1") ) {
+        print fmt("Unsupported Zeek version: %s. Please use Zeek 7.1.1 or newer.", Version::number);
+        return;
+    }
+
 	Log::create_stream(BR24::LOG, [$columns=Info, $ev=log_br24, $path="br24", $policy=log_policy]);
 
 	Analyzer::register_for_ports(Analyzer::ANALYZER_BR24, ports);

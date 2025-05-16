@@ -6,357 +6,358 @@ import spicy;
 #    payload: bytes &eod;
 #
 #};
+@if SPICY_VERSION >= 11200
+    type reg_number = enum { 
+        radar_ops = 1,  # TODO: change that to a name similar to wireshark
+        zoom_level = 3, 
+        bearing_alignment = 5,
+        filters_and_preprocessing = 6,
+        interference_rejection = 8,
+        target_expansion = 9,
+        target_boost = 10,
+        local_interference_filter = 14,
+        scan_speed = 15,
+        noise_rejection = 33,
+        target_separation = 34,
+        doppler = 35,
+        antenna_height = 48,
+        keep_alive = 160
+    };
 
-type reg_number = enum { 
-    radar_ops = 1,  # TODO: change that to a name similar to wireshark
-    zoom_level = 3, 
-    bearing_alignment = 5,
-    filters_and_preprocessing = 6,
-    interference_rejection = 8,
-    target_expansion = 9,
-    target_boost = 10,
-    local_interference_filter = 14,
-    scan_speed = 15,
-    noise_rejection = 33,
-    target_separation = 34,
-    doppler = 35,
-    antenna_height = 48,
-    keep_alive = 160
-};
+    type reg_command = enum {
+        read = 194,
+        write = 193
+    };
 
-type reg_command = enum {
-    read = 194,
-    write = 193
-};
+    type radar_status = enum {
+        standby = 1,
+        transmit = 2,
+        waking_up = 3
+    };
 
-type radar_status = enum {
-    standby = 1,
-    transmit = 2,
-    waking_up = 3
-};
+    type gain_auto_enum = enum {
+        auto = 1,
+        manual = 0
+    };
 
-type gain_auto_enum = enum {
-    auto = 1,
-    manual = 0
-};
+    type sea_auto_enum = enum{
+        OFF = 0,
+        HARBOR = 1,
+        OFFSHORE = 2
+    };
 
-type sea_auto_enum = enum{
-    OFF = 0,
-    HARBOR = 1,
-    OFFSHORE = 2
-};
+    type interference_rejection_enum = enum{
+        OFF = 0,
+        LOW = 1,
+        MEDIUM = 2,
+        HIGH = 3
+    };
 
-type interference_rejection_enum = enum{
-    OFF = 0,
-    LOW = 1,
-    MEDIUM = 2,
-    HIGH = 3
-};
+    type target_boost_enum = enum {
+        OFF = 0,
+        LOW = 1,
+        HIGH = 2
+    };
 
-type target_boost_enum = enum {
-    OFF = 0,
-    LOW = 1,
-    HIGH = 2
-};
+    type scan_speed_enum = enum {
+        NORMAL = 0,
+        FAST = 1
+    };
 
-type scan_speed_enum = enum {
-    NORMAL = 0,
-    FAST = 1
-};
-
-type side_lobe_suppression_auto_enum = enum {
-    MANUAL = 0,
-    AUTO = 1
-};
+    type side_lobe_suppression_auto_enum = enum {
+        MANUAL = 0,
+        AUTO = 1
+    };
 
 
-public type br24_reg = unit {
-    %port = 6680/udp &originator;
-   
-    # register : bytes &size=(1);
-    register : uint8 &byte-order=spicy::ByteOrder::Little &convert=reg_number($$);
-    command : uint8 &byte-order=spicy::ByteOrder::Little &convert=reg_command($$);
-    data : bytes &eod;
-
-    on %init {
-        print "Starting REG";
-    }
-
-    on %done {
-        print self;
-    }
-};
-
-public type br24_img = unit {
-    %port = 6678/udp &originator;
-
-    hdr : img_header;
-
-    : scanline[];
-
-    on %init {
-        print "Starting IMG";
-    }
-
-    on %done {
-        # print self;
-    }
-};
-
-type img_header = unit {
-    #%byte-order = spicy::ByteOrder::Little;
+    public type br24_reg = unit {
+        %port = 6680/udp &originator;
     
-    start_marker: bytes &size=(5);
-    scanlines_no:   uint8 &byte-order=spicy::ByteOrder::Little;
-    scanline_size:   uint16 &byte-order=spicy::ByteOrder::Little;
+        # register : bytes &size=(1);
+        register : uint8 &byte-order=spicy::ByteOrder::Little &convert=reg_number($$);
+        command : uint8 &byte-order=spicy::ByteOrder::Little &convert=reg_command($$);
+        data : bytes &eod;
 
-    # NOTE: Just testing for now
-    # : void &size=(17160 - 7);
+        on %init {
+            print "Starting REG";
+        }
 
-    # payload: bytes &eod;
+        on %done {
+            print self;
+        }
+    };
 
-    on %init {
-        print "Starting HEADER";
-    }
+    public type br24_img = unit {
+        %port = 6678/udp &originator;
 
-    on %done {
-        # print self;
-        print self.start_marker;
-        print self.scanlines_no;
-        print self.scanline_size;
-    }
-};
+        hdr : img_header;
 
-type scanline = unit {
-    #%byte-order = spicy::ByteOrder::Little;
-    
-    scanline_hdr : scanline_header;
-    scanline_pixels : bytes &size=(512);
+        : scanline[];
 
-    on %init {
-        print "Starting Scanline";
-    }
+        on %init {
+            print "Starting IMG";
+        }
 
-    on %done {
-        # print self;
-    }
-};
+        on %done {
+            # print self;
+        }
+    };
 
-type scanline_header = unit {
+    type img_header = unit {
+        #%byte-order = spicy::ByteOrder::Little;
         
-    scanline_header_len:   uint8 &byte-order=spicy::ByteOrder::Little;
-    status:   uint8 &byte-order=spicy::ByteOrder::Little;
-    scanline_counter:   uint16 &byte-order=spicy::ByteOrder::Little;
-    marking:   bytes &size=(4);
-    angle:   uint16 &byte-order=spicy::ByteOrder::Little;
-    heading:   uint16 &byte-order=spicy::ByteOrder::Little;
-    range:   uint16 &byte-order=spicy::ByteOrder::Little;
-    unknown_1:   bytes &size=(10);
+        start_marker: bytes &size=(5);
+        scanlines_no:   uint8 &byte-order=spicy::ByteOrder::Little;
+        scanline_size:   uint16 &byte-order=spicy::ByteOrder::Little;
 
-    on %init {
-        print "Starting Scanline Header";
-    }
+        # NOTE: Just testing for now
+        # : void &size=(17160 - 7);
 
-    on %done {
-        print self;
-        # print self.scanline_header_len;
-        # print self.scanline_counter;
-        print "\n";
-    }
-};
+        # payload: bytes &eod;
+
+        on %init {
+            print "Starting HEADER";
+        }
+
+        on %done {
+            # print self;
+            print self.start_marker;
+            print self.scanlines_no;
+            print self.scanline_size;
+        }
+    };
+
+    type scanline = unit {
+        #%byte-order = spicy::ByteOrder::Little;
+        
+        scanline_hdr : scanline_header;
+        scanline_pixels : bytes &size=(512);
+
+        on %init {
+            print "Starting Scanline";
+        }
+
+        on %done {
+            # print self;
+        }
+    };
+
+    type scanline_header = unit {
+            
+        scanline_header_len:   uint8 &byte-order=spicy::ByteOrder::Little;
+        status:   uint8 &byte-order=spicy::ByteOrder::Little;
+        scanline_counter:   uint16 &byte-order=spicy::ByteOrder::Little;
+        marking:   bytes &size=(4);
+        angle:   uint16 &byte-order=spicy::ByteOrder::Little;
+        heading:   uint16 &byte-order=spicy::ByteOrder::Little;
+        range:   uint16 &byte-order=spicy::ByteOrder::Little;
+        unknown_1:   bytes &size=(10);
+
+        on %init {
+            print "Starting Scanline Header";
+        }
+
+        on %done {
+            print self;
+            # print self.scanline_header_len;
+            # print self.scanline_counter;
+            print "\n";
+        }
+    };
 
 
-public type br24_rep = unit {
-    %port = 6679/udp &originator;
+    public type br24_rep = unit {
+        %port = 6679/udp &originator;
 
-    report_type : uint8 &byte-order=spicy::ByteOrder::Little;
-    command : uint8 &byte-order=spicy::ByteOrder::Little;
-    
+        report_type : uint8 &byte-order=spicy::ByteOrder::Little;
+        command : uint8 &byte-order=spicy::ByteOrder::Little;
+        
 
-    status : br24_report_status if (self.command == 196 && self.report_type == 1);
+        status : br24_report_status if (self.command == 196 && self.report_type == 1);
 
-    settings : br24_report_settings if (self.command == 196 && self.report_type == 2);
+        settings : br24_report_settings if (self.command == 196 && self.report_type == 2);
 
-    firmware : br24_report_firmware if (self.command == 196 && self.report_type == 3);
+        firmware : br24_report_firmware if (self.command == 196 && self.report_type == 3);
 
-    bearing : br24_report_bearing if (self.command == 196 && self.report_type == 4);
+        bearing : br24_report_bearing if (self.command == 196 && self.report_type == 4);
 
-    unknown_05 : br24_report_unknown_05 if (self.command == 196 && self.report_type == 5);
+        unknown_05 : br24_report_unknown_05 if (self.command == 196 && self.report_type == 5);
 
-    unknown_07 : br24_report_unknown_07 if (self.command == 196 && self.report_type == 7);
-    
-    scan : br24_report_scan if (self.command == 196 && self.report_type == 8);
-    
-    unknown_f5 : br24_report_unknown_f5 if (self.command == 245);
+        unknown_07 : br24_report_unknown_07 if (self.command == 196 && self.report_type == 7);
+        
+        scan : br24_report_scan if (self.command == 196 && self.report_type == 8);
+        
+        unknown_f5 : br24_report_unknown_f5 if (self.command == 245);
 
-    on %init {
-        print "Starting REP";
-    }
+        on %init {
+            print "Starting REP";
+        }
 
-    on %done {
-        # print self;
-    }
-};
+        on %done {
+            # print self;
+        }
+    };
 
-type br24_report_status = unit {
-    
-    status: uint8 &byte-order=spicy::ByteOrder::Little &convert=radar_status($$);
-    unknown: bytes &size=(15);
+    type br24_report_status = unit {
+        
+        status: uint8 &byte-order=spicy::ByteOrder::Little &convert=radar_status($$);
+        unknown: bytes &size=(15);
 
-    on %init {
-        print "Starting REP Status";
-    }
+        on %init {
+            print "Starting REP Status";
+        }
 
-    on %done {
-        print self;
-    }
-};
+        on %done {
+            print self;
+        }
+    };
 
-type br24_report_settings = unit {
+    type br24_report_settings = unit {
 
-    range: uint32 &byte-order=spicy::ByteOrder::Little;
-    unknown1: bytes &size=(2);
-    gain_auto: uint32 &byte-order=spicy::ByteOrder::Little  &convert=gain_auto_enum($$);
-    gain: uint8 &byte-order=spicy::ByteOrder::Little;
-    sea_auto: uint8 &byte-order=spicy::ByteOrder::Little &convert=sea_auto_enum($$);
-    unknown2: bytes &size=(3);
-    sea_state: uint8 &byte-order=spicy::ByteOrder::Little;
-    unknown3: bytes &size=(4);
-    rain_clutter: uint8 &byte-order=spicy::ByteOrder::Little;
-    unknown4: bytes &size=(11);
-    interference_rejection: uint8 &byte-order=spicy::ByteOrder::Little &convert=interference_rejection_enum($$);
-    unknown5: bytes &size=(3);
-    target_expansion: bytes &size=(1);
-    unknown6: bytes &size=(3);
-    target_boost: uint8 &byte-order=spicy::ByteOrder::Little &convert=target_boost_enum($$);
-    unknown7: bytes &size=(56);
+        range: uint32 &byte-order=spicy::ByteOrder::Little;
+        unknown1: bytes &size=(2);
+        gain_auto: uint32 &byte-order=spicy::ByteOrder::Little  &convert=gain_auto_enum($$);
+        gain: uint8 &byte-order=spicy::ByteOrder::Little;
+        sea_auto: uint8 &byte-order=spicy::ByteOrder::Little &convert=sea_auto_enum($$);
+        unknown2: bytes &size=(3);
+        sea_state: uint8 &byte-order=spicy::ByteOrder::Little;
+        unknown3: bytes &size=(4);
+        rain_clutter: uint8 &byte-order=spicy::ByteOrder::Little;
+        unknown4: bytes &size=(11);
+        interference_rejection: uint8 &byte-order=spicy::ByteOrder::Little &convert=interference_rejection_enum($$);
+        unknown5: bytes &size=(3);
+        target_expansion: bytes &size=(1);
+        unknown6: bytes &size=(3);
+        target_boost: uint8 &byte-order=spicy::ByteOrder::Little &convert=target_boost_enum($$);
+        unknown7: bytes &size=(56);
 
-    on %init {
-        print "Starting REP Settings";
-    }
+        on %init {
+            print "Starting REP Settings";
+        }
 
-    on %done {
-        print self;
-    }
-};
+        on %done {
+            print self;
+        }
+    };
 
-type br24_report_firmware = unit {
+    type br24_report_firmware = unit {
 
-    radar_type: bytes &size=(1);
-    unknown1: bytes &size=(55);
+        radar_type: bytes &size=(1);
+        unknown1: bytes &size=(55);
 
-    firmware_date_bytes: bytes &size=(32);
-    # firmware_date_bytes: bytes &size=(32) &convert=$$.decode(spicy::Charset::UTF8);
-    # firmware_date_bytes: bytes &size=(32) &convert=$$.to_time(spicy::ByteOrder::Little);    
-    # firmware_date_bytes1: bytes &size=(32) &convert=$$.to_time();
+        firmware_date_bytes: bytes &size=(32);
+        # firmware_date_bytes: bytes &size=(32) &convert=$$.decode(spicy::Charset::UTF8);
+        # firmware_date_bytes: bytes &size=(32) &convert=$$.to_time(spicy::ByteOrder::Little);    
+        # firmware_date_bytes1: bytes &size=(32) &convert=$$.to_time();
 
-    # rest: bytes &eod;
+        # rest: bytes &eod;
 
-    firmware_time_bytes: bytes &size=(32);
-    unknown2: bytes &size=(7);
-    
-    var firmware_date_str: string;
-    var firmware_date_vec: vector<bytes>;
+        firmware_time_bytes: bytes &size=(32);
+        unknown2: bytes &size=(7);
+        
+        var firmware_date_str: string;
+        var firmware_date_vec: vector<bytes>;
 
-    var firmware_time_str: string;
-    var firmware_time_vec: vector<bytes>;
-    
-    on %init {
-        print "Starting REP Firmware";
-    }
+        var firmware_time_str: string;
+        var firmware_time_vec: vector<bytes>;
+        
+        on %init {
+            print "Starting REP Firmware";
+        }
 
-    on %done {
-       
+        on %done {
+        
 
-        self.firmware_date_vec = self.firmware_date_bytes.split(b"\x00");
+            self.firmware_date_vec = self.firmware_date_bytes.split(b"\x00");
 
-        for ( i in self.firmware_date_vec )
-            self.firmware_date_str += i.decode();
+            for ( i in self.firmware_date_vec )
+                self.firmware_date_str += i.decode();
 
-        self.firmware_time_vec = self.firmware_time_bytes.split(b"\x00");
+            self.firmware_time_vec = self.firmware_time_bytes.split(b"\x00");
 
-        for ( i in self.firmware_time_vec )
-            self.firmware_time_str += i.decode();
+            for ( i in self.firmware_time_vec )
+                self.firmware_time_str += i.decode();
 
-        print self;
-    }
-};
+            print self;
+        }
+    };
 
-type br24_report_bearing = unit {
+    type br24_report_bearing = unit {
 
-    unknown1: bytes &size=(4);
-    bearing_alignment: uint16 &byte-order=spicy::ByteOrder::Little;
-    unknown2: bytes &size=(2);
-    antenna_height: uint32 &byte-order=spicy::ByteOrder::Little;
-    unknown3: bytes &size=(52);
-    
-    on %init {
-        print "Starting REP Bearing";
-    }
+        unknown1: bytes &size=(4);
+        bearing_alignment: uint16 &byte-order=spicy::ByteOrder::Little;
+        unknown2: bytes &size=(2);
+        antenna_height: uint32 &byte-order=spicy::ByteOrder::Little;
+        unknown3: bytes &size=(52);
+        
+        on %init {
+            print "Starting REP Bearing";
+        }
 
-    on %done {
-        print self;
-    }
-};
+        on %done {
+            print self;
+        }
+    };
 
-type br24_report_unknown_05 = unit {
+    type br24_report_unknown_05 = unit {
 
-    unknown: bytes &eod;
-    
-    on %init {
-        print "Starting REP unknown 05";
-    }
+        unknown: bytes &eod;
+        
+        on %init {
+            print "Starting REP unknown 05";
+        }
 
-    on %done {
-        # print self;
-    }
-};
+        on %done {
+            # print self;
+        }
+    };
 
-type br24_report_unknown_07 = unit {
+    type br24_report_unknown_07 = unit {
 
-    unknown: bytes &eod;
-    
-    on %init {
-        print "Starting REP unknown 05";
-    }
+        unknown: bytes &eod;
+        
+        on %init {
+            print "Starting REP unknown 05";
+        }
 
-    on %done {
-        # print self;
-    }
-};
+        on %done {
+            # print self;
+        }
+    };
 
-type br24_report_unknown_f5 = unit {
+    type br24_report_unknown_f5 = unit {
 
-    unknown: bytes &eod;
-    
-    on %init {
-        print "Starting REP unknown f5";
-    }
+        unknown: bytes &eod;
+        
+        on %init {
+            print "Starting REP unknown f5";
+        }
 
-    on %done {
-        # print self;
-    }
-};
+        on %done {
+            # print self;
+        }
+    };
 
-type br24_report_scan = unit {
+    type br24_report_scan = unit {
 
-    unknown1: bytes &size=(1);
-    local_interference_rejection: uint8 &byte-order=spicy::ByteOrder::Little &convert=interference_rejection_enum($$);
-    scan_speed: uint8 &byte-order=spicy::ByteOrder::Little &convert=scan_speed_enum($$);
-    side_lobe_suppression_auto: uint8 &byte-order=spicy::ByteOrder::Little &convert=side_lobe_suppression_auto_enum($$);
-    unknown2: bytes &size=(3);
-    side_lobe_suppression_value: uint8 &byte-order=spicy::ByteOrder::Little;
-    unknown3: bytes &size=(2);
-    noise_rejection: bytes &size=(1);
-    target_separation: bytes &size=(1);
-    unknown4: bytes &size=(4);
-    
+        unknown1: bytes &size=(1);
+        local_interference_rejection: uint8 &byte-order=spicy::ByteOrder::Little &convert=interference_rejection_enum($$);
+        scan_speed: uint8 &byte-order=spicy::ByteOrder::Little &convert=scan_speed_enum($$);
+        side_lobe_suppression_auto: uint8 &byte-order=spicy::ByteOrder::Little &convert=side_lobe_suppression_auto_enum($$);
+        unknown2: bytes &size=(3);
+        side_lobe_suppression_value: uint8 &byte-order=spicy::ByteOrder::Little;
+        unknown3: bytes &size=(2);
+        noise_rejection: bytes &size=(1);
+        target_separation: bytes &size=(1);
+        unknown4: bytes &size=(4);
+        
 
-    on %init {
-        print "Starting REP Scan";
-    }
+        on %init {
+            print "Starting REP Scan";
+        }
 
-    on %done {
-        print self;
-    }
-};
+        on %done {
+            print self;
+        }
+    };
+@endif
